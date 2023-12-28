@@ -1,35 +1,99 @@
 StatsNotes
 ================
-Matteo
+Matteo Angeli
 2023-12-28
 
-## R Markdown
+## Revision
 
-This is an R Markdown document. Markdown is a simple formatting syntax
-for authoring HTML, PDF, and MS Word documents. For more details on
-using R Markdown see <http://rmarkdown.rstudio.com>.
+<u>Parametric tests</u> ⇒ validity depends on the data distribution
 
-When you click the **Knit** button a document will be generated that
-includes both content as well as the output of any embedded R code
-chunks within the document. You can embed an R code chunk like this:
+- Compare means of two samples == t-test
+- Compare means of three or more samples == ANOVA
+- Assess the association between two continuous variables == correlation
+- Assess the association between categorical variables == Chi-square
+
+<u>What are the assumptions?</u>
+
+1.  Normal distribution </br> ⇒ data are symmetrical about the mean:
+    Mean = Mode = Median
+2.  Independent data points
+3.  Homogeneity of variance
+
+<u>Standard error</u> $SE=\frac{s} {\sqrt{N}}$
+
+68% of sample means lie within ± 1 SE of m   \[green\]
+
+95% of sample means lie within ± 1.96 SE of m  \[red\]
+
+→ m is the true population mean - in this case m=0
+
+<img src="Notes_files/figure-gfm/gaussian_distribution.png"
+width="1420" />
+
+There is a 95% chance that an observation drawn at random from the
+population will be within 1.96 x SE of the true population mean.
+
+There is only a 5% chance of a random observation occurring outside this
+range – this is the basis of the 0.05 significance level.
+
+<u>What if the data are not normally distributed?</u>
+
+- Transform the data \[ log ; log+1 ; square-root \]
+
+- Use a statistical test that doesn’t require a normal distribution
+
+- Specify a different data distribution in a GLM (we’ll look at this in
+  later lessons)
+
+<u>Non-parametric tests</u> —\> for ordinal data or for data when
+transformations don’t work
+
+|                             |                       |
+|-----------------------------|-----------------------|
+| Mann-Whitney U test         | unpaired t-test       |
+| Kruskal-Wallis test         | unpaired t-test       |
+| Kruskal-Wallis test         | paired t-test         |
+| Wilcoxon matched pairs test | one-way ANOVA         |
+| Friedman test               | two-way ANOVA         |
+| Spearman correlation        | Pearson’s correlation |
+| Kendall correlation         | Pearson’s correlation |
 
 ``` r
-summary(cars)
+# R tips:
+# first clean the environment and call every package you will use
+rm(list=ls())
+library(package)
+# explore data first of all, and plot data to check for errors 
+# or zero-inflation
+str()
+head()
+hist()
+summary()
+# two graphs same row
+par(mfrow=c(2,2))
 ```
 
-    ##      speed           dist       
-    ##  Min.   : 4.0   Min.   :  2.00  
-    ##  1st Qu.:12.0   1st Qu.: 26.00  
-    ##  Median :15.0   Median : 36.00  
-    ##  Mean   :15.4   Mean   : 42.98  
-    ##  3rd Qu.:19.0   3rd Qu.: 56.00  
-    ##  Max.   :25.0   Max.   :120.00
+**Exercise 1:** Is there a difference in bird density between organic
+and conventional farms in the winter? \[*Organic.txt*\]
 
-## Including Plots
+``` r
+# first of all we need to evaluate the distribution of the two variables
+# to make it, we will print their frequency distribution graphs 
+DensOrg<-(dens[ftyp=="O"])
+DensConv<-(dens[ftyp=="C"])
+par(mfrow=c(1,2))
+hist(DensOrg)
+hist(DensConv)
 
-You can also embed plots, for example:
+# both of them are not normally distributed, so we will transform them with in log(x+1) scale
+LDens<-log(dens+1)
+par(mfrow=c(1,2))             # split the plot environment
+hist(LDens[ftyp=="O"])
+hist(LDens[ftyp=="O"])
+# now they are normally distributed, is there a difference between the mean of the two samples?
 
-![](Notes_files/figure-gfm/pressure-1.png)<!-- -->
-
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
+t.test(LDens ~ ftyp, var.equal=T)
+    # p-value = 0.1717
+# Answer: yes, there is a statistical difference in bird density between organic and conventional farms in winter
+boxplot(LDens ~ ftyp)         # as the boxplot shows too
+```
