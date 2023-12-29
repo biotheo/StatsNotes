@@ -78,25 +78,58 @@ par(mfrow=c(2,2))
 
 **Exercise 1:** Is there a difference in bird density between organic and conventional farms in the winter?	[*Organic.txt*]
 
-```{r exercise_1, eval=FALSE, warning=FALSE}
+```{r exercise_1}
+data<-read.table("/home/matteo/GitHub_BioTheo/StatsNotes/Notes_files/database/Organic.txt", header=TRUE, sep=",")
+attach(data)
+head(data)
+
 # first of all we need to evaluate the distribution of the two variables
 # to make it, we will print their frequency distribution graphs 
+
 DensOrg<-(dens[ftyp=="O"])
 DensConv<-(dens[ftyp=="C"])
+
 par(mfrow=c(1,2))
 hist(DensOrg)
 hist(DensConv)
 
 # both of them are not normally distributed, so we will transform them with in log(x+1) scale
+
 LDens<-log(dens+1)
-par(mfrow=c(1,2))             # split the plot environment
+
+par(mfrow=c(1,2))          # split the plot environment
 hist(LDens[ftyp=="O"])
 hist(LDens[ftyp=="O"])
+
 # now they are normally distributed, is there a difference between the mean of the two samples?
 
 t.test(LDens ~ ftyp, var.equal=T)
-	# p-value = 0.1717
+# p-value = 0.1717, there's a difference
+
 # Answer: yes, there is a statistical difference in bird density between organic and conventional farms in winter
+
+par(mfrow=c(1,1))             # restore default plot environment (you can also use > dev.off() )
 boxplot(LDens ~ ftyp)         # as the boxplot shows too
+
+```
+
+## Analysis of Variance
+⇒ Testing the difference between three or more means
+Why can’t we just do a series of t-tests? —> Type I & II errors
+
+- Type I error is *false positive*
+- Type II error is *false negative*
+
+> We accept a level of significance of P = 0.05, in other words <5% chance that we have a Type I error </br>
+> So we implicitly accept that 5% (or 1 in 20) of the time we will have a Type I error </br>
+> If we increase the number of tests on the same dataset, we inflate the probability of a Type I error </br>
+> e.g. comparing three groups by running 3 t-tests results in a 14.3% chance of a Type I error. 
+
+**Example**: carabid species richess at different elevation zones   [ Rich_final.csv ]
+
+```{r exercise_1}
+
+
+
 ```
 

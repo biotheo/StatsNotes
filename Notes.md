@@ -1,7 +1,7 @@
 StatsNotes
 ================
 Matteo Angeli
-2023-12-28
+2023-12-29
 
 ## Revision
 
@@ -77,23 +77,85 @@ par(mfrow=c(2,2))
 and conventional farms in the winter? \[*Organic.txt*\]
 
 ``` r
+data<-read.table("/home/matteo/GitHub_BioTheo/StatsNotes/Notes_files/database/Organic.txt", header=TRUE, sep=",")
+attach(data)
+head(data)
+```
+
+    ##   site ftyp X_TYPE_ X_FREQ_      count    area     dens
+    ## 1    1    C       0       3  42.333333 38.0412 1.112829
+    ## 2    1    O       0       3  51.000000 27.7992 1.834585
+    ## 3   10    C       0       4 151.250000 68.5872 2.205222
+    ## 4  152    C       0       4 122.250000 68.4828 1.785120
+    ## 5  152    O       0       2 122.000000 35.0928 3.476497
+    ## 6   16    C       0       3   8.666667  7.2576 1.194150
+
+``` r
 # first of all we need to evaluate the distribution of the two variables
 # to make it, we will print their frequency distribution graphs 
+
 DensOrg<-(dens[ftyp=="O"])
 DensConv<-(dens[ftyp=="C"])
+
 par(mfrow=c(1,2))
 hist(DensOrg)
 hist(DensConv)
+```
 
+![](Notes_files/figure-gfm/exercise_1-1.png)<!-- -->
+
+``` r
 # both of them are not normally distributed, so we will transform them with in log(x+1) scale
+
 LDens<-log(dens+1)
-par(mfrow=c(1,2))             # split the plot environment
+
+par(mfrow=c(1,2))          # split the plot environment
 hist(LDens[ftyp=="O"])
 hist(LDens[ftyp=="O"])
+```
+
+![](Notes_files/figure-gfm/exercise_1-2.png)<!-- -->
+
+``` r
 # now they are normally distributed, is there a difference between the mean of the two samples?
 
 t.test(LDens ~ ftyp, var.equal=T)
-    # p-value = 0.1717
+```
+
+    ## 
+    ##  Two Sample t-test
+    ## 
+    ## data:  LDens by ftyp
+    ## t = -1.3768, df = 97, p-value = 0.1717
+    ## alternative hypothesis: true difference in means between group C and group O is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.33129677  0.05991152
+    ## sample estimates:
+    ## mean in group C mean in group O 
+    ##       0.8030012       0.9386938
+
+``` r
+# p-value = 0.1717, there's a difference
+
 # Answer: yes, there is a statistical difference in bird density between organic and conventional farms in winter
+
+par(mfrow=c(1,1))             # restore default plot environment (you can also use > dev.off() )
 boxplot(LDens ~ ftyp)         # as the boxplot shows too
 ```
+
+![](Notes_files/figure-gfm/exercise_1-3.png)<!-- -->
+
+## Analysis of Variance
+
+⇒ Testing the difference between three or more means Why can’t we just
+do a series of t-tests? —\> Type I & II errors
+
+- Type I error is *false positive*
+- Type II error is *false negative*
+
+> We accept a level of significance of P = 0.05, in other words \<5%
+> chance that we have a Type I error </br> So we implicitly accept that
+> 5% (or 1 in 20) of the time we will have a Type I error </br> If we
+> increase the number of tests on the same dataset, we inflate the
+> probability of a Type I error e.g. comparing three groups by running 3
+> t-tests results in a 14.3% chance of a Type I error.
